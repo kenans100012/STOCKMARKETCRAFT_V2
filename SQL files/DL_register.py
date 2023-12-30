@@ -6,7 +6,8 @@ dir=r"D:\Shaun\Documents\Comp_Project"
 os.chdir(dir)
 e=Error
 def DL_register_main(access_mode,email_id,user_id,first_name,last_name,Error_code):
-    def connect():
+    def connect(email_id,user_id,first_name,last_name,Error_code):
+      Error_code=None
       conn = None
       try:
         conn = mysql.connector.connect(host='127.0.0.1',
@@ -20,16 +21,25 @@ def DL_register_main(access_mode,email_id,user_id,first_name,last_name,Error_cod
                insert_query="INSERT INTO sa_register (Email,User_ID,First_Name,Last_Name) VALUES (%s,%s,%s,%s)"
                cursor.execute(insert_query,(email_id,user_id,first_name,last_name))
                conn.commit()
-               print(cursor.fetch(1))
+               print(cursor.fetchall())
 
+        if access_mode=="READONE":
+               print("enter readone",email_id)
+               cursor=conn.cursor()
+               select_query="SELECT User_ID from sa_register where EMAIL = %s"
+               cursor.execute(select_query,(email_id,))
+               res=cursor.fetchone()
+               print(res)
+               if res is None:
+                  Error_code=1
+               else:
+                  user_id=res[0]
 
       except Error as e:
-        print(e)
-        print(e.args[0])
+        Error_code = f"Error: {e.args[0]}"
       finally:
-
         if conn is not None and conn.is_connected():
-            print(conn.is_connected())
             conn.close()
-    connect()   
-    return(access_mode,email_id,user_id,first_name,last_name,Error_code)
+        return(email_id,user_id,first_name,last_name,Error_code)
+    email_id,user_id,first_name,last_name,Error_code=connect(email_id,user_id,first_name,last_name,Error_code)
+    return(access_mode,email_id,user_id,first_name,last_name,Error_code)    
