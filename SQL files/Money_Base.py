@@ -2,7 +2,7 @@
 from decimal import Decimal
 from mysql.connector import connect, Error
 import os
-dir = r"D:\Shaun\Documents\Comp_Project"
+dir = r"D:\Repos\STOCKMARKETCRAFT_V2\ACTUAL_SQL_FILES_2000"
 os.chdir(dir)
 db_connection = None
 db_config = {
@@ -17,6 +17,7 @@ def connect_to_database():
         db_connection = connect(**db_config)
         print("Connected to the database")
         return db_connection
+    
     except Error as err:
         print(f"Error: {err}")
         Error_code = f"Error: {err.args[0]}"

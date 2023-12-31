@@ -4,7 +4,7 @@ import smtplib
 import os
 from business_logic import *
 from User_Business_Logic import *
-dir=r"D:\Shaun\Documents\Comp_Project"
+dir=r"D:\Repos\STOCKMARKETCRAFT_V2\ACTUAL_SQL_FILES_2000"
 os.chdir(dir)
 email_id,user_id,first_name,last_name,passw,Error_code='0','0','0','0','0','0'
 print("Enter the option")
