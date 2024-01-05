@@ -53,7 +53,7 @@ def train_model(data):
     # Evaluate the model
     predictions = model.predict(X_test)
     mse = mean_squared_error(y_test, predictions)
-   # print(f'Mean Squared Error: {mse}')
+    print(f'Mean Squared Error: {mse}')
 
     return model
 
