@@ -10,25 +10,27 @@ class DBhelper: #class
         
         cur = self.con.cursor()
         cur.execute(query)
-        print("Query created")
+        #print("Query created")
         
     #insert
-    def insert_user(self, userid, emailid,firstname,lastname):
-        query = "insert into user(userId, emailId, first_name, last_name) values({},'{}','{}','{}')".format(userid,emailid,firstname,lastname)
+    def insert_user(self, userid, emailid,firstname,lastname,password1):
+        query = "insert into user(userId, emailId, first_name, last_name, password) values({},'{}','{}','{}','{}')".format(userid,emailid,firstname,lastname,password1)
         print(query)
         cur = self.con.cursor()
         cur.execute(query)
         self.con.commit()
-        print("USER HAS BEEN ADDED")
+        #print("USER HAS BEEN ADDED")
     
     #fetching data
     def fetch_all(self):
+        fetchdata = []
         query = "select * from user"
         cur = self.con.cursor()
         cur.execute(query)
         for row in cur:
-            print("UID")
-
+            fetchdata.append(row)
+        #print(fetchdata)
+        return fetchdata
        
 #main coding:
 helper = DBhelper()
@@ -41,4 +43,5 @@ helper = DBhelper()
 #helper.insert_user(uid,emid,firstname1,lastname1)
 
 #fetching data
-helper.fetch_all()
+
+#helper.fetch_all()

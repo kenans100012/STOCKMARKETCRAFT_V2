@@ -64,7 +64,7 @@ def predict_movement(model, input_data):
     prediction = model.predict(input_df)[0]
     return prediction
 
-if __name__ == "__main__":
+'''if __name__ == "__main__":
     # Get user input for stock symbol
     stock_symbol = input("Enter the stock symbol: ").upper()
 
@@ -91,3 +91,4 @@ if __name__ == "__main__":
             print(f"The stock is predicted to rise by {((predicted_close - last_record['4. close'].values[0]) / last_record['4. close'].values[0]) * 100:.2f}%.")
         else:
             print(f"The stock is predicted to fall by {((last_record['4. close'].values[0] - predicted_close) / last_record['4. close'].values[0]) * 100:.2f}%.")
+'''
