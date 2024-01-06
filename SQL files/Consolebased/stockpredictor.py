@@ -14,7 +14,7 @@ def get_stock_data(symbol):
     api_key = "BBKKPSDUF19ZKSJW"
     ts = TimeSeries(key=api_key, output_format='pandas') #OUTPUT IS PANDAS DATASTRUCTURE FORMAT
     data, meta_data = ts.get_daily(symbol=symbol, outputsize='compact')
-    print(meta_data)
+    #print(meta_data)
     return data
 
 # Function to preprocess and prepare data for training

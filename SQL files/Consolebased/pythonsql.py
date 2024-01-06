@@ -34,14 +34,3 @@ class DBhelper: #class
        
 #main coding:
 helper = DBhelper()
-
-#Reading input
-#uid = int(input("Enter uid:"))
-#emid = input("enter emid:")
-#firstname1 = (input("enter first name: "))
-#lastname1 = (input("enter second name:"))
-#helper.insert_user(uid,emid,firstname1,lastname1)
-
-#fetching data
-
-#helper.fetch_all()
