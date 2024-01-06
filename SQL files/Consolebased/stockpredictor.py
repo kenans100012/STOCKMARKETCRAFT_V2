@@ -12,8 +12,9 @@ from sklearn.preprocessing import StandardScaler
 # Function to fetch historical stock data using Alpha Vantage API
 def get_stock_data(symbol):
     api_key = "BBKKPSDUF19ZKSJW"
-    ts = TimeSeries(key=api_key, output_format='pandas')
+    ts = TimeSeries(key=api_key, output_format='pandas') #OUTPUT IS PANDAS DATASTRUCTURE FORMAT
     data, meta_data = ts.get_daily(symbol=symbol, outputsize='compact')
+    print(meta_data)
     return data
 
 # Function to preprocess and prepare data for training
@@ -61,7 +62,7 @@ def train_model(data):
 def predict_movement(model, input_data):
     # Convert input data to DataFrame with correct column names
     input_df = pd.DataFrame([input_data], columns=['1. open', '2. high', '3. low', '5. volume'])
-    prediction = model.predict(input_df)[0]
+    prediction = model.predict(input_df)[0] #inputed model uses the predict function to predict a list of prediction which later returns index 0 (first index of list)
     return prediction
 
 '''if __name__ == "__main__":
