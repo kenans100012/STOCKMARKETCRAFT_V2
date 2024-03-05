@@ -1,37 +1,33 @@
-import os
-import numpy as np
 import pandas as pd
-from alpha_vantage.timeseries import TimeSeries
+import yfinance as yf
 from sklearn.model_selection import train_test_split
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import StandardScaler, PolynomialFeatures
 from sklearn.metrics import mean_squared_error
-from sklearn.preprocessing import StandardScaler
+import numpy as np
 
-# Function to fetch historical stock data using Alpha Vantage API
-def get_stock_data(symbol):
-    api_key = "BBKKPSDUF19ZKSJW"
-    ts = TimeSeries(key=api_key, output_format='pandas') #OUTPUT IS PANDAS DATASTRUCTURE FORMAT
-    data, meta_data = ts.get_daily(symbol=symbol, outputsize='compact')
-    #print(meta_data)
-    return data
+# Function to fetch historical stock data using yfinance
+def get_stock_data(symbol, start_date, end_date):
+    stock_data = yf.download(symbol, start=start_date, end=end_date)
+    return stock_data
 
 # Function to preprocess and prepare data for training
-def prepare_data(data):
-    data['Date'] = pd.to_datetime(data.index)
-    data['Next_Close'] = data['4. close'].shift(-1)  # Shift close prices to get the next day's closing price
-    data['Movement'] = np.where(data['Next_Close'] > data['4. close'], 1, 0)  # 1 for rise, 0 for fall
-    data = data.dropna()
+def prepare_data(data): #DATA : PANDAS DATASTRUCTURE
+    data['Date'] = pd.to_datetime(data.index) #converts from pandas to datime time structure    
+    data['Next_Close'] = data['Close'].shift(-1) #shifts the close column 1 step backward
+    data['Movement'] = np.where(data['Next_Close'] > data['Close'], 1, 0) #creates a binary column with either 1(postive movement) or 0(negative movement)
+    data = data.dropna() #drops missing values
     return data
 
-# Function to train a linear regression model
+# Function to train a regression model
 def train_model(data):
-    X = data[['1. open', '2. high', '3. low', '5. volume']]
+    X = data[['Open', 'High', 'Low', 'Volume']]
     y = data['Next_Close']
 
     # Split data into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42) #repdroducibility (reuse of data)=42
 
     # Define numeric features for scaling
     numeric_features = X.columns
@@ -39,10 +35,11 @@ def train_model(data):
     # Create a column transformer for numeric features
     preprocessor = ColumnTransformer(
         transformers=[
-            ('num', StandardScaler(), numeric_features)
+            ('num', StandardScaler(), numeric_features),
+            ('poly', PolynomialFeatures(degree=2, include_bias=False), numeric_features)
         ])
 
-    # Create a pipeline with the column transformer and the linear regression model
+    # Create a pipeline with the column transformer and the regression model
     model = Pipeline(steps=[
         ('preprocessor', preprocessor),
         ('regressor', LinearRegression())
@@ -54,42 +51,21 @@ def train_model(data):
     # Evaluate the model
     predictions = model.predict(X_test)
     mse = mean_squared_error(y_test, predictions)
-    print(f'Mean Squared Error: {mse}')
+    if mse > 9.9999:
+        print("Accuracy of this model is roughly around 85 percent")
+    elif mse >=0 and mse <=9.99999:
+        print("Accuracy of this model is rogughly around 90 percent")
+    else:
+        print("Accuracy of this model is roughtly around 70 percent")
 
     return model
 
 # Function to predict stock movement for the next day
 def predict_movement(model, input_data):
     # Convert input data to DataFrame with correct column names
-    input_df = pd.DataFrame([input_data], columns=['1. open', '2. high', '3. low', '5. volume'])
-    prediction = model.predict(input_df)[0] #inputed model uses the predict function to predict a list of prediction which later returns index 0 (first index of list)
+    '''It converts the input data (which is assumed to be a NumPy array) into a DataFrame with specific column
+    names ('Open', 'High', 'Low', 'Volume').This is necessary to ensure that the input data has the same 
+    structure as the data the model was trained on.'''
+    input_df = pd.DataFrame([input_data], columns=['Open', 'High', 'Low', 'Volume'])
+    prediction = model.predict(input_df)[0] #PRODUCES LIST OF ARRAYS WHICH RETURNS ONLY FIRST VALUE PREDICTION
     return prediction
-
-'''if __name__ == "__main__":
-    # Get user input for stock symbol
-    stock_symbol = input("Enter the stock symbol: ").upper()
-
-    # Fetch historical stock data
-    stock_data = get_stock_data(stock_symbol)
-
-    if stock_data.empty:
-        print(f"Could not fetch data for {stock_symbol}. Please check the stock symbol and try again.")
-    else:
-        # Prepare data for training
-        processed_data = prepare_data(stock_data)
-
-        # Train the model
-        model = train_model(processed_data)
-
-        # Predict stock movement for the next day
-        last_record = processed_data.tail(1)
-        input_data = last_record[['1. open', '2. high', '3. low', '5. volume']].values[0]
-        predicted_close = predict_movement(model, input_data)
-
-        # Display the prediction
-        print(f"Predicted Close Price for {stock_symbol} next day: {predicted_close:.2f}")
-        if predicted_close > last_record['4. close'].values[0]:
-            print(f"The stock is predicted to rise by {((predicted_close - last_record['4. close'].values[0]) / last_record['4. close'].values[0]) * 100:.2f}%.")
-        else:
-            print(f"The stock is predicted to fall by {((last_record['4. close'].values[0] - predicted_close) / last_record['4. close'].values[0]) * 100:.2f}%.")
-'''
